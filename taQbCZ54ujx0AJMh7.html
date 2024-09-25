@@ -1,0 +1,429 @@
+<html><head><base href="https://neonmatrixencryption.example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplicación Neon Matrix de Cifrado y Descifrado con Música de Fondo</title>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #fff;
+    overflow-x: hidden;
+  }
+  #animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background-image: url('https://steamuserimages-a.akamaihd.net/ugc/1672491230045600027/FE51EF92B989C71663EE48A2F025B36B558D460C/?imw=506&imh=284&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true');
+    background-size: cover;
+    background-position: center;
+    animation: backgroundMove 20s linear infinite;
+  }
+  @keyframes backgroundMove {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  #matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.5;
+  }
+  .scrollable-content {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(147, 112, 219, 0.5);
+  }
+  h1 {
+    text-align: center;
+    color: #9370DB;
+    text-shadow: 0 0 10px #9370DB, 0 0 20px #9370DB, 0 0 30px #9370DB;
+    animation: neon 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes neon {
+    from {
+      text-shadow: 0 0 10px #9370DB, 0 0 20px #9370DB, 0 0 30px #9370DB;
+    }
+    to {
+      text-shadow: 0 0 5px #9370DB, 0 0 10px #9370DB, 0 0 15px #9370DB, 0 0 20px #9370DB, 0 0 35px #9370DB;
+    }
+  }
+  label, input, button, select, textarea {
+    display: block;
+    margin-bottom: 15px;
+  }
+  input[type="text"], input[type="file"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #9370DB;
+    border-radius: 5px;
+    background-color: rgba(147, 112, 219, 0.1);
+    color: #fff;
+    transition: all 0.3s ease;
+  }
+  input[type="text"]:focus, input[type="file"]:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 10px #9370DB;
+  }
+  button {
+    background-color: #9370DB;
+    color: #111;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+  }
+  button:hover {
+    background-color: #8A2BE2;
+    box-shadow: 0 0 15px #9370DB;
+  }
+  #result, #asciiTable {
+    margin-top: 20px;
+    padding: 15px;
+    border: 2px solid #9370DB;
+    border-radius: 5px;
+    background-color: rgba(147, 112, 219, 0.1);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+    border: 2px solid #9370DB;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  th, td {
+    border: 1px solid #9370DB;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: rgba(147, 112, 219, 0.2);
+    color: #9370DB;
+  }
+  tr:nth-child(even) {
+    background-color: rgba(147, 112, 219, 0.05);
+  }
+  #audioControl {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(147, 112, 219, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+  }
+  #audioControl button {
+    background-color: #9370DB;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  #audioControl button:hover {
+    background-color: #8A2BE2;
+  }
+  #creator {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: rgba(147, 112, 219, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(147, 112, 219, 0.3);
+  }
+  #creator img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #9370DB;
+    margin-bottom: 15px;
+    box-shadow: 0 0 15px #9370DB;
+  }
+  #creator p {
+    font-size: 1.2em;
+    color: #9370DB;
+    text-shadow: 0 0 5px #9370DB;
+  }
+</style>
+</head>
+<body>
+<div id="animated-bg"></div>
+<canvas id="matrix-bg"></canvas>
+<div class="scrollable-content">
+  <div class="container">
+    <h1>Aplicación Neon Matrix de Cifrado y Descifrado</h1>
+    
+    <label for="textInput">Texto:</label>
+    <textarea id="textInput" rows="5" placeholder="Ingrese el texto aquí"></textarea>
+    
+    <label for="fileInput">O suba un archivo .txt:</label>
+    <input type="file" id="fileInput" accept=".txt">
+    
+    <label for="byteSize">Seleccione el tamaño de cifrado:</label>
+    <select id="byteSize">
+      <option value="2">2 bytes</option>
+      <option value="4">4 bytes</option>
+      <option value="8">8 bytes</option>
+      <option value="16" selected>16 bytes</option>
+      <option value="32">32 bytes</option>
+    </select>
+    
+    <button onclick="encryptText()">Cifrar</button>
+    <button onclick="decryptText()">Descifrar</button>
+    
+    <div id="result"></div>
+    
+    <button onclick="downloadResult()">Descargar Texto Procesado</button>
+    
+    <div id="asciiTable"></div>
+    <button onclick="downloadASCIITable()" id="downloadASCIIBtn" style="display:none;">Descargar Tabla ASCII</button>
+
+    <div id="creator">
+      <img src="https://i.pinimg.com/originals/66/d8/22/66d822884e7171e9fb9cfadb8daf80b6.png" alt="Melanie Díaz" width="150" height="150">
+      <p>Generado por Melanie Díaz</p>
+    </div>
+  </div>
+</div>
+
+<div id="audioControl">
+  <button onclick="toggleAudio()">Reproducir/Pausar Música</button>
+  <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5" onchange="setVolume(this.value)">
+</div>
+
+<audio id="backgroundMusic" loop>
+  <source src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" type="audio/ogg">
+  Tu navegador no soporta el elemento de audio.
+</audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+// Matrix Rain Effect
+const canvas = document.getElementById('matrix-bg');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const purple = '#9370DB';
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+const fontSize = 12;
+const columns = canvas.width / fontSize;
+const drops = [];
+
+for (let i = 0; i < columns; i++) {
+  drops[i] = 1;
+}
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = purple;
+  ctx.font = fontSize + 'px monospace';
+  
+  for (let i = 0; i < drops.length; i++) {
+    const text = characters.charAt(Math.floor(Math.random() * characters.length));
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+
+setInterval(drawMatrix, 50);
+
+// Encryption, Decryption and ASCII Table Generation
+let currentKey;
+let currentIv;
+
+function encryptText() {
+  const textInput = document.getElementById('textInput');
+  const fileInput = document.getElementById('fileInput');
+  const byteSize = parseInt(document.getElementById('byteSize').value);
+  
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      processEncryption(text, byteSize);
+    };
+    reader.readAsText(file);
+  } else if (textInput.value) {
+    processEncryption(textInput.value, byteSize);
+  } else {
+    alert('Por favor, ingrese texto o suba un archivo.');
+  }
+}
+
+function processEncryption(text, byteSize) {
+  currentKey = CryptoJS.lib.WordArray.random(byteSize);
+  currentIv = CryptoJS.lib.WordArray.random(16);
+  
+  const encrypted = CryptoJS.AES.encrypt(text, currentKey, { 
+    iv: currentIv,
+    padding: CryptoJS.pad.Pkcs7,
+    mode: CryptoJS.mode.CBC
+  });
+  
+  const result = encrypted.toString();
+  document.getElementById('result').innerText = result;
+  generateASCIITable(result);
+}
+
+function decryptText() {
+  const textInput = document.getElementById('textInput');
+  const fileInput = document.getElementById('fileInput');
+  
+  if (!currentKey || !currentIv) {
+    alert('Primero debe cifrar un texto para obtener una clave y vector de inicialización.');
+    return;
+  }
+  
+  let ciphertext;
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      ciphertext = e.target.result;
+      processDecryption(ciphertext);
+    };
+    reader.readAsText(file);
+  } else if (textInput.value) {
+    ciphertext = textInput.value;
+    processDecryption(ciphertext);
+  } else {
+    alert('Por favor, ingrese texto cifrado o suba un archivo.');
+  }
+}
+
+function processDecryption(ciphertext) {
+  try {
+    const decrypted = CryptoJS.AES.decrypt(ciphertext, currentKey, { 
+      iv: currentIv,
+      padding: CryptoJS.pad.Pkcs7,
+      mode: CryptoJS.mode.CBC
+    });
+    
+    const result = decrypted.toString(CryptoJS.enc.Utf8);
+    document.getElementById('result').innerText = result;
+    generateASCIITable(result);
+  } catch (error) {
+    alert('Error al descifrar. Asegúrese de que el texto esté correctamente cifrado y que esté usando la misma clave y vector de inicialización.');
+    console.error(error);
+  }
+}
+
+function generateASCIITable(text) {
+  let tableHTML = '<table><tr><th>Caracter</th><th>ASCII</th><th>Hexadecimal</th></tr>';
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charAt(i);
+    const ascii = char.charCodeAt(0);
+    const hex = ascii.toString(16).toUpperCase().padStart(2, '0');
+    tableHTML += `<tr><td>${char}</td><td>${ascii}</td><td>${hex}</td></tr>`;
+  }
+  
+  tableHTML += '</table>';
+  document.getElementById('asciiTable').innerHTML = tableHTML;
+  document.getElementById('downloadASCIIBtn').style.display = 'block';
+}
+
+function downloadResult() {
+  const result = document.getElementById('result').innerText;
+  if (!result) {
+    alert('No hay texto procesado para descargar.');
+    return;
+  }
+  
+  downloadFile(result, 'texto_procesado.txt');
+}
+
+function downloadASCIITable() {
+  const table = document.getElementById('asciiTable').innerText;
+  if (!table) {
+    alert('No hay tabla ASCII para descargar.');
+    return;
+  }
+  
+  downloadFile(table, 'tabla_ascii.txt');
+}
+
+function downloadFile(content, filename) {
+  const blob = new Blob([content], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Control de audio
+const audio = document.getElementById('backgroundMusic');
+const volumeControl = document.getElementById('volumeControl');
+
+function toggleAudio() {
+  if (audio.paused) {
+    audio.play().catch(e => console.log("Error al reproducir audio:", e));
+  } else {
+    audio.pause();
+  }
+}
+
+function setVolume(value) {
+  audio.volume = value;
+}
+
+// Inicializar el volumen
+audio.volume = volumeControl.value;
+
+// Manejar la interacción del usuario para iniciar el audio
+document.body.addEventListener('click', function() {
+  if (audio.paused) {
+    audio.play().catch(e => console.log("Error al reproducir audio:", e));
+  }
+}, { once: true });
+</script>
+</body></html>
